@@ -23,7 +23,6 @@ win='Hacky Embroidery Stuff'
 def on_trackbar(val):
     global imgthresh 
     imgthresh = val 
-    print(imgthresh)
 
 
 def check_for_long_stitches(s):
@@ -73,7 +72,6 @@ while True:
     nh=int(h*dsf)
     # this is the scale down bit
     simg=cv.resize(grey, (nw,nh), interpolation=cv.INTER_LINEAR)
-    print(imgthresh)
     ret,thresh=cv.threshold(grey,imgthresh,255,0)
 
     contours, hierarchy=cv.findContours(thresh,cv.RETR_LIST, cv.CHAIN_APPROX_SIMPLE)
