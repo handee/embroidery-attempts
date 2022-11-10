@@ -7,8 +7,8 @@ from matplotlib import pyplot as plt
 stitchgap=20 # max length between stitches, x or y gaps greater than this will have extra points added between them
 
 # min length of stitch is handled in a SUPER hacky way by downscaling the image then upscaling the stitch arrays.
-upscale=4
-dsf=1.0/upscale# downscale factor
+upscale=1
+dsf=0.2 # downscale factor
 print(f"Images will be downscaled by {dsf} for processing then stitches will be upscaled by {upscale} for output")
 
 # in pyembroidery a unit of 1 == 0.1mm so 20 means stitches longer than 2mm will be sub-stitched.
@@ -16,7 +16,14 @@ print(f"Images will be downscaled by {dsf} for processing then stitches will be 
 smallthresh=7 # smaller contours than this will be deleted. make this lower if you are dealing with shapes with lots of straight lines
 
 outfile="fifthgo"
+imgthresh=125
 
+win='Hacky Embroidery Stuff'
+
+def on_trackbar(val):
+    global imgthresh 
+    imgthresh = val 
+    print(imgthresh)
 
 
 def check_for_long_stitches(s):
@@ -46,6 +53,10 @@ cap = cv.VideoCapture(0)
 if not cap.isOpened():
     print("Cannot open camera")
     exit()
+
+cv.namedWindow(win)
+cv.createTrackbar('Brightness Threshold', win,0,255,on_trackbar)
+
 while True:
     # Capture frame-by-frame
     ret, frame = cap.read()
@@ -55,21 +66,27 @@ while True:
         break
     # Our operations on the frame come here
     grey = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
-    # Display the resulting frame
-    cv.imshow('frame', grey)
+ 
+    w=grey.shape[1]
+    h=grey.shape[0]
+    nw=int(w*dsf)
+    nh=int(h*dsf)
+    # this is the scale down bit
+    simg=cv.resize(grey, (nw,nh), interpolation=cv.INTER_LINEAR)
+    print(imgthresh)
+    ret,thresh=cv.threshold(grey,imgthresh,255,0)
+
+    contours, hierarchy=cv.findContours(thresh,cv.RETR_LIST, cv.CHAIN_APPROX_SIMPLE)
+
+    cv.drawContours(grey,contours,-1,(0,255,0),3)
+       # Display the resulting frame
+       
+    cv.imshow(win, grey)
     if cv.waitKey(1) == ord('q'):
         break
 # When everything done, release the capture
 cap.release()
 cv.destroyAllWindows()
-
-# this is the scale down bit
-simg=cv.resize(grey, None, fx=dsf, fy=dsf, interpolation=cv.INTER_LINEAR)
-ret,thresh=cv.threshold(grey,125,255,0)
-
-contours, hierarchy=cv.findContours(thresh,cv.RETR_LIST, cv.CHAIN_APPROX_SIMPLE)
-
-cv.drawContours(grey,contours,-1,(0,255,0),3)
 
 
 p1= pe.EmbPattern()
@@ -81,7 +98,7 @@ for c in contours:
         contour_array=[]
         for pt in c:
             contour_array.append([pt[0][0],pt[0][1]])
-        contour_array=np.multiply(contour_array,upscale-1) # now we upscale
+        contour_array=np.multiply(contour_array,upscale) # now we upscale
         stitches=check_for_long_stitches(contour_array.tolist())
         p1.add_block(stitches, "blue")
 
