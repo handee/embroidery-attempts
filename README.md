@@ -7,3 +7,7 @@ Playing around with embroidery libraries
 **Second**: reads in an image file, finds regions, traces their contour, writes the points of the contours to a patten as a series of stitches. doesn't do anything with stitch length or contour size.
 
 **Third**: filters found contours by length so doesn't have lots of tiny components
+
+**Fourth**: downsamples image and checks for long stitches
+
+**Fifth**: works on the webcam, has a trackbar to experiment with thresholds
