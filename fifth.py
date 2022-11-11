@@ -7,13 +7,13 @@ from matplotlib import pyplot as plt
 stitchgap=20 # max length between stitches, x or y gaps greater than this will have extra points added between them
 
 # min length of stitch is handled in a SUPER hacky way by downscaling the image then upscaling the stitch arrays.
-upscale=1
+upscale=4
 dsf=0.2 # downscale factor
 print(f"Images will be downscaled by {dsf} for processing then stitches will be upscaled by {upscale} for output")
 
 # in pyembroidery a unit of 1 == 0.1mm so 20 means stitches longer than 2mm will be sub-stitched.
 
-smallthresh=7 # smaller contours than this will be deleted. make this lower if you are dealing with shapes with lots of straight lines
+smallthresh=20 # smaller contours than this will be deleted. make this lower if you are dealing with shapes with lots of straight lines
 
 outfile="fifthgo"
 imgthresh=125
@@ -72,14 +72,14 @@ while True:
     nh=int(h*dsf)
     # this is the scale down bit
     simg=cv.resize(grey, (nw,nh), interpolation=cv.INTER_LINEAR)
-    ret,thresh=cv.threshold(grey,imgthresh,255,0)
+    ret,thresh=cv.threshold(simg,imgthresh,255,0)
 
     contours, hierarchy=cv.findContours(thresh,cv.RETR_LIST, cv.CHAIN_APPROX_SIMPLE)
-
-    cv.drawContours(grey,contours,-1,(0,255,0),3)
        # Display the resulting frame
-       
-    cv.imshow(win, grey)
+    oimg=cv.cvtColor(simg, cv.COLOR_GRAY2BGR)   
+    cv.drawContours(oimg,contours,-1,(0,255,0),3)
+    bimg=cv.resize(oimg, (w,h), interpolation=cv.INTER_LINEAR)
+    cv.imshow(win, bimg)
     if cv.waitKey(1) == ord('q'):
         break
 # When everything done, release the capture
