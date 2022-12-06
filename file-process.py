@@ -8,7 +8,7 @@ from matplotlib import pyplot as plt
 stitchgap=20 # max length between stitches, x or y gaps greater than this will have extra points added between them
 
 # min length of stitch is handled in a SUPER hacky way by downscaling the image then upscaling the stitch arrays.
-upscale=1
+upscale=3
 dsf=0.5 # downscale factor
 print(f"Images will be downscaled by {dsf} for processing then stitches will be upscaled by {upscale} for output")
 
