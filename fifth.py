@@ -102,3 +102,4 @@ for c in contours:
 
 pe.write_dst(p1, f"{outfile}.dst")
 pe.write_png(p1, f"{outfile}.png")
+pe.write_pes(p1, f"{outfile}.pes")

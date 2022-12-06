@@ -7,13 +7,13 @@ from matplotlib import pyplot as plt
 stitchgap=20 # max length between stitches, x or y gaps greater than this will have extra points added between them
 
 # min length of stitch is handled in a SUPER hacky way by downscaling the image then upscaling the stitch arrays.
-upscale=1
-dsf=0.5 # downscale factor
+upscale=5
+dsf=0.15 # downscale factor
 print(f"Images will be downscaled by {dsf} for processing then stitches will be upscaled by {upscale} for output")
 
 # in pyembroidery a unit of 1 == 0.1mm so 20 means stitches longer than 2mm will be sub-stitched.
 
-smallthresh=7 # smaller contours than this will be deleted. make this lower if you are dealing with shapes with lots of straight lines
+smallthresh=20 # smaller contours than this will be deleted. make this lower if you are dealing with shapes with lots of straight lines
 
 outfile="sixthgo"
 canny1=125
@@ -23,7 +23,7 @@ haar='/usr/share/opencv4/haarcascades/haarcascade_frontalface_default.xml'
 fc=cv.CascadeClassifier()
 fc.load(haar)
 
-win='Hacky Embroidery Stuff'
+win='Hannah''s Hacky Embroidery Stuff - line version'
 
 def on_trackbar(val):
     global canny1 
@@ -85,18 +85,19 @@ while True:
     nh=int(h*dsf)
     # this is the scale down bit
     simg=cv.resize(grey, (nw,nh), interpolation=cv.INTER_LINEAR)
-    faces = fc.detectMultiScale(grey)
-    for (x,y,w,y) in faces:
+    #faces = fc.detectMultiScale(grey)
+    #for (x,y,w,y) in faces:
             
 
     canny=cv.Canny(simg,canny1,canny2)
 
     contours, hierarchy=cv.findContours(canny,cv.RETR_LIST, cv.CHAIN_APPROX_SIMPLE)
-
-    cv.drawContours(simg,contours,-1,(0,255,0),3)
+    bimg=cv.cvtColor(canny,cv.COLOR_GRAY2BGR)
+    cv.drawContours(bimg,contours,-1,(255,0,0),3)
+    bimg=cv.resize(bimg,(w,h), interpolation=cv.INTER_LINEAR)
        # Display the resulting frame
        
-    cv.imshow(win, simg)
+    cv.imshow(win, bimg)
     if cv.waitKey(1) == ord('q'):
         break
 # When everything done, release the capture
@@ -118,4 +119,5 @@ for c in contours:
         p1.add_block(stitches, "blue")
 
 pe.write_dst(p1, f"{outfile}.dst")
+pe.write_pes(p1, f"{outfile}.pes")
 pe.write_png(p1, f"{outfile}.png")
